@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
 import 'firebase/firestore'
+require('firebase/auth')
 
 // Your web app's Firebase configuration
 var firebaseConfig = {
@@ -11,8 +12,9 @@ var firebaseConfig = {
   messagingSenderId: "643524690865",
   appId: "1:643524690865:web:1b7e4938dad3e2e4"
 };
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db = firebase.firestore()
 
 export default db;

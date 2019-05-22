@@ -1,10 +1,10 @@
 <template>
   <div class="dashboard">
-    <h1 class="subheading grey--text">Dashboard</h1>
+    <h1 class="subheading grey--text ml-4">Dashboard</h1>
     
-    <v-container class="my-4">
+    <v-container class="my-2">
 
-      <v-layout row class="mb-3">
+      <v-layout row class="mb-3" wrap>
 
         <v-tooltip top>
           <v-btn small flat color="grey" @click="sortBy('title')" slot="activator">
@@ -12,14 +12,6 @@
             <span class="caption text-lowercase">By project name</span>
           </v-btn>
           <span>Sort projetcs by project name</span>
-        </v-tooltip>
-
-        <v-tooltip top>
-          <v-btn small flat color="grey" @click="sortBy('person')" slot="activator">
-            <v-icon left small>person</v-icon>
-            <span class="caption text-lowercase">By person</span>
-          </v-btn>
-          <span>Sort projects by person</span>
         </v-tooltip>
 
         <v-tooltip top>
@@ -32,32 +24,41 @@
 
       </v-layout>
       
-      <v-card flat v-for="project in projects" :key="project.title">
-        <v-layout row wrap :class="`pa-3 project ${project.status}`">
+      <draggable v-model="projects" @change="saveOrder">
+      <v-card flat v-for="(project, index) in projects" :key="project.title">
+        <v-layout row wrap :class="`pa-2 project ${project.status}`">
 
           <v-flex xs12 md6>
             <div class="caption grey--text">Project Title</div>
-            <div>{{ project.title }}</div>
+            <div :class="{'mt-0 mb-1': $vuetify.breakpoint.smAndDown}">{{ project.title }}</div>
           </v-flex>
 
-          <v-flex xs6 sm4 md2>
-            <div class="caption grey--text">Person</div>
-            <div>{{ project.person }}</div>
-          </v-flex>
-
-          <v-flex xs6 sm4 md2>
+          <v-flex xs5 sm6 md2>
             <div class="caption grey--text">Due by</div>
-            <div>{{ project.due }}</div>
+            <div :class="{'mt-0 mx-0 px-0': $vuetify.breakpoint.smAndDown}">{{ project.due }}</div>
           </v-flex>
 
-          <v-flex xs2 sm4 md2>
-            <div class="caption grey--text">Status</div>
-            <div><v-chip small :class="`${project.status} white--text caption my-2`">{{ project.status }}</v-chip></div>
+          <v-flex xs3 sm3 md2 class="pt-0">
+            <div class="mt-0 pt-0">
+              <v-btn @click="changeStatus(index)" flat small round :class="`${project.status} white--text px-0 mx-0`">
+                {{ project.status }}
+              </v-btn>
+            </div>
+          </v-flex>
+          <v-spacer></v-spacer>
+
+          <v-flex xs3 sm3 md2>
+            <div class="mt-0 pt-0">
+              <v-btn icon :class="`${project.status}`" @click="testes" class="pa-0 ma-0"><v-icon>edit</v-icon></v-btn>
+              <v-btn icon :class="`${project.status}`" @click="deleteProject(index)" class="pa-0 ma-0"><v-icon>delete</v-icon></v-btn>
+            </div>
+
           </v-flex>
 
         </v-layout>
         <v-divider></v-divider>
       </v-card>
+      </draggable>
       
     </v-container>
 
@@ -67,26 +68,137 @@
 
 <script>
   import db from '@/fb'
+  import firebase from 'firebase'
+  import draggable from 'vuedraggable';
+  import { EventBus } from '@/event-bus.js';
+
 
   export default {
+
+    components: {
+      draggable
+    },
+    
     data() {
       return {
-        projects: []
+        projects: [],
+        userId: '',
+        btnColor: ''
       }
+    },
+
+    mounted() {
+      EventBus.$on('project-added', () => {
+        this.saveOrder();
+      });
     },
 
     methods: {
+
       sortBy(prop){
         this.projects.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
-      }
+      },
+
+      changeStatus(index) {
+      
+        const currentProject = this.projects[index]
+        var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
+
+        // LOGIC FOR STATUS UPDATE
+        switch (currentProject.status) {
+          case 'ongoing':
+            var newStatus = 'complete'
+            var btnColor = 'success'
+            break;
+
+          case 'complete':
+            newStatus = 'overdue'
+            btnColor = 'error'
+            break;
+          
+          case 'overdue':
+            newStatus = 'ongoing'
+            btnColor = 'info'
+            break;
+
+          default:
+            break;
+        }
+
+        // UPDATE DATABASE
+        docRef.set({
+            status: newStatus,
+
+        }, { merge: true });
+
+        // UPDATE LOCAL DATA
+        currentProject.status = newStatus
+        this.btnColor = btnColor
+
+      },
+
+      deleteProject(index) {
+        const currentProject = this.projects[index]
+        var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
+
+        // DELETE ON DATABASE
+        docRef.delete().then(function() {
+          console.log("Document successfully deleted!");
+        }).catch(function(error) {
+          console.error("Error removing document: ", error);
+        });
+
+
+        // DELETE ON LOCAL DATA
+        if (index > -1) {
+          this.projects.splice(index, 1);
+        }
+
+        // UPDATE ORDER ON DATABASE
+        this.saveOrder();
+
+      },
+
+      saveOrder() {
+
+        for (let index = 0; index < this.projects.length; index++) {
+          const currentProject = this.projects[index];
+          var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
+
+          // UPDATE PRIORITY ON DATABASE
+          docRef.set({
+            priority: index,
+
+          }, { merge: true });
+          
+        }
+      },
+
     },
+
     created() {
-      db.collection('projects').onSnapshot(res => {
+      const user = firebase.auth().currentUser;
+      if (user) {
+        var userId = user.uid
+        this.userId = userId
+      } else {
+        // not logged
+      }
+
+      // COLLECTION REF
+      var projectsRef = db.collection('users/'+userId+'/projects')
+
+      // ORDER DATA BY PRIORITY
+      projectsRef = projectsRef.orderBy("priority", "desc")
+
+      // GET DATA
+      projectsRef.onSnapshot(res => {
+ 
         const changes = res.docChanges();
 
         changes.forEach(change => {
           if (change.type === 'added') {
-            this.projects.push({
+            this.projects.unshift({ // UNSHIF FOR ADD AT THE BEGINNING
               ...change.doc.data(),
               id: change.doc.id
             })
@@ -112,16 +224,28 @@
     border-left: 4px solid #f83e70;
   }
 
-  .v-chip.complete {
+  .theme--light.v-btn:not(.v-btn--icon).complete {
     background-color: #3cd1c2;
   }
 
-  .v-chip.ongoing {
+  .theme--light.v-btn:not(.v-btn--icon).ongoing {
     background-color: #ffaa2c;
   }
 
-  .v-chip.overdue {
+  .theme--light.v-btn:not(.v-btn--icon).overdue {
     background-color: #f83e70;
+  }
+
+  .theme--light.v-btn.complete {
+    color: #3cd1c2;
+  }
+
+  .theme--light.v-btn.ongoing {
+    color: #ffaa2c;
+  }
+
+  .theme--light.v-btn.overdue {
+    color: #f83e70;
   }
 
 </style>

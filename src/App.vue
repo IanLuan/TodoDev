@@ -1,9 +1,13 @@
 <template>
   <v-app class="grey lighten-4">
     
-    <Navbar />
+    <Navbar v-if="show"/>
 
-    <v-content class="mx-4 mb-4">
+    <v-content class="mb-4" v-if="show">
+      <router-view></router-view>
+    </v-content>
+
+    <v-content class="ma-0" v-if="!show">
       <router-view></router-view>
     </v-content>
 
@@ -21,6 +25,11 @@ export default {
   data () {
     return {
       //
+    }
+  },
+  computed: {
+    show () {
+      return this.$route.path != '/auth'; 
     }
   }
 }

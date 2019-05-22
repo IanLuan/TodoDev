@@ -8,13 +8,13 @@
       </v-card-title>
 
       <v-card-text>
-        <v-form class="px-3">
+        <v-form class="px-3" ref="form">
           <v-text-field label="Title" v-model="title" prepend-icon="folder" :rules="inputRules"></v-text-field>
-          <v-textarea label="Information" v-model="content" prepend-icon="edit" :rules="inputRules"></v-textarea>
+          <v-textarea label="Information" v-model="content" prepend-icon="edit"></v-textarea>
 
           <!-- Date Picker -->
           <v-menu>
-            <v-text-field :rules="inputRules" :value="formattedDate" slot="activator" label="Due date" prepend-icon="date_range"></v-text-field>
+            <v-text-field :rules="dateRules" readonly :value="formattedDate" slot="activator" label="Due date" prepend-icon="date_range"></v-text-field>
             <v-date-picker v-model="due"></v-date-picker>
           </v-menu>
 
@@ -32,49 +32,75 @@
 <script>
 import format from 'date-fns/format'
 import db from '@/fb'
+import firebase from 'firebase'
+import { EventBus } from '@/event-bus.js';
 
 export default {
+
   data() {
     return {
       dialog: false,
       title: '',
       content: '',
       due: null,
+      userId: '',
       inputRules: [
         v =>(v && v.length >= 3) || 'Minimum length is 3 characters'
+      ],
+      dateRules: [
+        v =>(v && v.length >= 4) || 'Invalid format. Click to pick'
       ],
       loading: false,
     }
   },
   methods: {
+    
     submit() {
 
-      if(this.title.length >= 3 && this.content.length >= 3 && this.due.length >= 3) {
+      if(this.title.length > 0 && this.due.length >= 4) {
         this.loading = true;
-
+        const collectionRef = db.collection('users/'+this.userId+'/projects');
+        
         const project = {
           title: this.title,
           content: this.content,
           due: format(this.due, 'Do MMM YYYY'),
           status: 'ongoing',
-          person: 'Ian',
+          priority: 100
         }
 
-        db.collection('projects').add(project).then(() => {
+        collectionRef.add(project).then(() => {
           this.loading = false;
           this.dialog = false;
-          this.$emit('projectAdded');
+          EventBus.$emit('project-added');
         });
-        
+
+        this.save()
+        this.$refs.form.reset()
+
         
       }
 
-    }
+    },
+
   },
   computed: {
     formattedDate() {
       return this.due ? format(this.due, 'Do MMM YYYY') : ''
     }
+  },
+
+  created() {
+    const user = firebase.auth().currentUser;
+
+    if (user){
+      var userId = user.uid;
+    } else {
+      //
+    }
+    this.userId = userId;
+
+
   }
 
 

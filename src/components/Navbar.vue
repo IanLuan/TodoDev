@@ -17,25 +17,10 @@
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
+      
 
-
-      <!-- dropdown -->
-      <v-menu offset-y>
-        <v-btn flat slot="activator" color="grey">
-          <v-icon left>expand_more</v-icon>
-          <span>Menu</span>
-        </v-btn>
-
-        <v-list>
-          <v-list-tile v-for="link in links" :key="link.text" router :to="link.route">
-            <v-list-tile-title>{{ link.text }}</v-list-tile-title>
-          </v-list-tile>
-        </v-list>
-
-      </v-menu>
-
-      <v-btn flat color="grey">
-        <span>Sign Out</span>
+      <v-btn flat color="grey" @click="signout">
+        <span>Sign out</span>
         <v-icon right>exit_to_app</v-icon>
       </v-btn>
 
@@ -51,7 +36,7 @@
             <img src="/man.png" alt="">
           </v-avatar>
           <p class="white--text subheading mt-1 text-xs-center">
-            Ian Luan
+            {{name}}
           </p>
         </v-flex>
         <v-flex class="mt-3 mb-3">
@@ -81,19 +66,41 @@
 
 <script>
 import Popup from './Popup'
+import firebase from 'firebase'
 
 export default {
   components: { Popup },
   data() {
     return {
+      name: '',
       drawer: false,
       links: [
-        { icon: 'dashboard', text: 'Dashboard', route: '/'},
+        { icon: 'dashboard', text: 'Dashboard', route: '/dashboard'},
         { icon: 'folder', text: 'My Projects', route: '/projects'},
         { icon: 'person', text: 'Team', route: '/team'},
       ],  
       snackbar: false,
     }
+  },
+  methods: {
+
+    signout() {
+      firebase.auth().signOut().then(() => {
+        this.$router.replace('/auth')
+      })
+    }
+
+  },
+
+  created() {
+    var user = firebase.auth().currentUser;
+
+    if (user) {
+      this.name = user.displayName;
+    } else {
+      //
+    }
   }
+
 }
 </script>
