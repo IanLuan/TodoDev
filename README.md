@@ -10,6 +10,6 @@ Live preview: https://todoteam-3263d.firebaseapp.com/
 
 - Material Design ![Awesome Material Design](https://imgur.com/pyTyEjL.png)
 
-- Draggable Todo List ![Draggable](https://imgur.com/6fEmPRB.pnh)
+- Draggable Todo List ![Draggable](https://imgur.com/6fEmPRB.png)
 
 - Todo List based on Status 
