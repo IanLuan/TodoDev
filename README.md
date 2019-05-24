@@ -1,6 +1,6 @@
 # TodoDev
-A simple Web App made with Vuejs, Vuetify and the powerful Firebase.
-Live preview: https://todoteam-3263d.firebaseapp.com/
+A simple Todo App made for developers with Vuejs, Vuetify and the powerful Firebase.
+Live: https://todoteam-3263d.firebaseapp.com/
 
 ![
 ](https://i.imgur.com/LPOv1nz.png)
