@@ -8,7 +8,10 @@ Vue.use(Vuetify, {
     primary: '#9652ff',
     success: '#3cd1c2',
     info: '#ffaa2c',
-    error: '#f83e70'
+    error: '#f83e70',
+    completes: '#3cd1c2',
+    ongoings: '#ffaa2c',
+    overdues: '#f83e70',
 
   },
 })

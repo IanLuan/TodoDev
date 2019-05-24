@@ -76,8 +76,7 @@ export default {
       drawer: false,
       links: [
         { icon: 'dashboard', text: 'Dashboard', route: '/dashboard'},
-        { icon: 'folder', text: 'My Projects', route: '/projects'},
-        { icon: 'person', text: 'Team', route: '/team'},
+        { icon: 'settings', text: 'Settings', route: '/settings'},
       ],  
       snackbar: false,
     }

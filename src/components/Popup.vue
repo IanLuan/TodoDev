@@ -1,6 +1,7 @@
 <template>
-    
+
   <v-dialog max-width="600px" v-model="dialog">
+
     <v-btn flat slot="activator" class="success">Add new project</v-btn>
     <v-card>
       <v-card-title>
@@ -9,8 +10,12 @@
 
       <v-card-text>
         <v-form class="px-3" ref="form">
-          <v-text-field label="Title" v-model="title" prepend-icon="folder" :rules="inputRules"></v-text-field>
-          <v-textarea label="Information" v-model="content" prepend-icon="edit"></v-textarea>
+
+          <v-alert type="error" :value="alerta">
+            Type some title
+          </v-alert>
+
+          <v-text-field label="Title" v-model="title" prepend-icon="edit"></v-text-field>
 
           <!-- Date Picker -->
           <v-menu>
@@ -44,11 +49,9 @@ export default {
       content: '',
       due: null,
       userId: '',
-      inputRules: [
-        v =>(v && v.length >= 3) || 'Minimum length is 3 characters'
-      ],
+      alerta: false,
       dateRules: [
-        v =>(v && v.length >= 4) || 'Invalid format. Click to pick'
+        v =>(v.length >= 4) || 'Invalid format. Click to pick'
       ],
       loading: false,
     }
@@ -66,21 +69,28 @@ export default {
           content: this.content,
           due: format(this.due, 'Do MMM YYYY'),
           status: 'ongoing',
-          priority: 100
+          priority: 100,
         }
 
         collectionRef.add(project).then(() => {
           this.loading = false;
           this.dialog = false;
+          this.formReset();
           EventBus.$emit('project-added');
         });
 
-        this.save()
-        this.$refs.form.reset()
-
+        this.alerta = false;
         
+      } else {
+        this.alerta = true;
       }
 
+    },
+
+    formReset() {
+      this.title = '';
+      this.content = '';
+      this.due = null;
     },
 
   },
@@ -99,7 +109,6 @@ export default {
       //
     }
     this.userId = userId;
-
 
   }
 

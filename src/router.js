@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from './views/Dashboard.vue'
-import Team from './views/Team.vue'
+import Settings from './views/Settings.vue'
 import Auth from './views/Auth.vue'
 import firebase from 'firebase'
 
@@ -29,9 +29,9 @@ const router = new Router({
       }
     },
     {
-      path: '/team',
-      name: 'team',
-      component: Team,
+      path: '/settings',
+      name: 'settings',
+      component: Settings,
       meta: {
         requiresAuth: true
       }

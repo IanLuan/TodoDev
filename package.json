@@ -1,5 +1,5 @@
 {
-  "name": "TodoTeam",
+  "name": "tododev",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -53,5 +53,17 @@
   "browserslist": [
     "> 1%",
     "last 2 versions"
-  ]
+  ],
+  "description": "A simple Web App made with Vuejs, Vuetify and the powerful Firebase. Live preview: https://todoteam-3263d.firebaseapp.com/",
+  "main": "babel.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IanLuan/TodoDev.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IanLuan/TodoDev/issues"
+  },
+  "homepage": "https://github.com/IanLuan/TodoDev#readme"
 }

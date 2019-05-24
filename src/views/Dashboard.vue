@@ -1,7 +1,13 @@
 <template>
   <div class="dashboard">
     <h1 class="subheading grey--text ml-4">Dashboard</h1>
-    
+
+    <v-snackbar v-model="snackbar" top color="warning" flat>
+          <span>Are you sure?</span>
+          <v-btn flat color="white" @click="snackbar = false; deleteProject()">Yes</v-btn>
+          <v-btn flat color="white" @click="snackbar = false; ">No</v-btn>
+    </v-snackbar>
+
     <v-container class="my-2">
 
       <v-layout row class="mb-3" wrap>
@@ -23,14 +29,20 @@
         </v-tooltip>
 
       </v-layout>
-      
+
       <draggable v-model="projects" @change="saveOrder">
       <v-card flat v-for="(project, index) in projects" :key="project.title">
+
         <v-layout row wrap :class="`pa-2 project ${project.status}`">
 
           <v-flex xs12 md6>
             <div class="caption grey--text">Project Title</div>
-            <div :class="{'mt-0 mb-1': $vuetify.breakpoint.smAndDown}">{{ project.title }}</div>
+            <div :class="{'mt-0 mb-1': $vuetify.breakpoint.smAndDown}" v-if="!editMode || index != indexToEdit">{{ project.title }}</div>
+
+            <v-form @submit.prevent="updateTitle(index)">
+            <v-text-field autofocus :color="`${project.status}s`" v-model="newTitle" v-if="editMode && indexToEdit == index" class="ma-0 pa-0"></v-text-field>
+            </v-form>
+
           </v-flex>
 
           <v-flex xs5 sm6 md2>
@@ -49,8 +61,8 @@
 
           <v-flex xs3 sm3 md2>
             <div class="mt-0 pt-0">
-              <v-btn icon :class="`${project.status}`" @click="testes" class="pa-0 ma-0"><v-icon>edit</v-icon></v-btn>
-              <v-btn icon :class="`${project.status}`" @click="deleteProject(index)" class="pa-0 ma-0"><v-icon>delete</v-icon></v-btn>
+              <v-btn icon :class="`${project.status}`" @click="editMode = !editMode; indexToEdit = index; newTitle = project.title;" class="pa-0 ma-0"><v-icon>edit</v-icon></v-btn>
+              <v-btn icon :class="`${project.status}`" @click="snackbar = true; indexToEdit = index;" class="pa-0 ma-0"><v-icon>delete</v-icon></v-btn>
             </div>
 
           </v-flex>
@@ -83,7 +95,11 @@
       return {
         projects: [],
         userId: '',
-        btnColor: ''
+        btnColor: '',
+        snackbar: false,
+        editMode: false,
+        newTitle: "",
+        indexToEdit: 0
       }
     },
 
@@ -137,7 +153,8 @@
 
       },
 
-      deleteProject(index) {
+      deleteProject() {
+        var index = this.indexToEdit;
         const currentProject = this.projects[index]
         var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
 
@@ -174,7 +191,24 @@
         }
       },
 
+      updateTitle(index) {
+      const currentProject = this.projects[index]
+      var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
+
+      docRef.set({
+            title: this.newTitle,
+
+        }, { merge: true });
+
+        // UPDATE LOCAL DATA
+        currentProject.title = this.newTitle
+
+      this.editMode = false;
     },
+
+    },
+
+    
 
     created() {
       const user = firebase.auth().currentUser;
