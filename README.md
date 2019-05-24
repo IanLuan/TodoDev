@@ -13,4 +13,5 @@ Live: https://todoteam-3263d.firebaseapp.com/
 
 - **Draggable Todo List** ![Draggable](https://imgur.com/6fEmPRB.png)
 
-- **Todo List based on Status** ![Draggable](https://i.imgur.com/ltSRkTZ.png)
+- **Todo List based on Status**
+![Draggable](https://i.imgur.com/ltSRkTZ.png) ![Draggable](https://imgur.com/0FNTS3r.png) ![Draggable]( https://imgur.com/ywX7cnC.png)
