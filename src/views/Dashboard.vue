@@ -30,7 +30,7 @@
 
       </v-layout>
 
-      <draggable v-model="projects" @change="saveOrder">
+      <draggable v-model="projects" @change="saveOrder" delay="150">
       <v-card flat v-for="(project, index) in projects" :key="project.title">
 
         <v-layout row wrap :class="`pa-2 project ${project.status}`">
@@ -160,9 +160,9 @@
 
         // DELETE ON DATABASE
         docRef.delete().then(function() {
-          console.log("Document successfully deleted!");
+          //console.log("Document successfully deleted!");
         }).catch(function(error) {
-          console.error("Error removing document: ", error);
+          alert(error.message);
         });
 
 
