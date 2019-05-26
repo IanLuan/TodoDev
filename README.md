@@ -1,10 +1,10 @@
 # TodoDev
 A simple Todo App made for developers with Vuejs, Vuetify and the powerful Firebase.
 
-Live: https://todoteam-3263d.firebaseapp.com/
+Live: https://todoteam-3263d.web.app/
 
 ![
-](https://i.imgur.com/LPOv1nz.png)
+](https://i.imgur.com/mC2l4YL.png)
 
 ## Features
 - **Authentication** ![authentication](https://i.imgur.com/xsK9SQK.gif)
