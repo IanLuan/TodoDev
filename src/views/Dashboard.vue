@@ -12,32 +12,41 @@
 
       <v-layout row class="mb-3" wrap>
 
-        <v-tooltip top>
-          <v-btn small flat color="grey" @click="sortBy('title')" slot="activator">
-            <v-icon left small>folder</v-icon>
-            <span class="caption text-lowercase">By project name</span>
-          </v-btn>
-          <span>Sort projetcs by project name</span>
-        </v-tooltip>
+        <v-btn icon @click="projects = projectsCopy; todos = true">
+          <v-icon color="primary">dashboard</v-icon>
+        </v-btn>
 
-        <v-tooltip top>
-          <v-btn small flat color="grey" @click="sortBy('status')" slot="activator">
-            <v-icon left small>check_circle</v-icon>
-            <span class="caption text-lowercase">By status</span>
-          </v-btn>
-           <span>Sort projects by status</span>
-        </v-tooltip>
+        <v-btn icon @click="filterProjects('complete'); todos = false">
+          <v-icon color="success">check_circle</v-icon>
+        </v-btn>
+        
+        <v-btn icon @click="filterProjects('ongoing'); todos = false">
+          <v-icon color="warning">work</v-icon>
+        </v-btn>
+        
+        <v-btn icon @click="filterProjects('overdue'); todos = false">
+          <v-icon color="error">watch_later</v-icon>
+        </v-btn>
 
+        <v-spacer></v-spacer>
+         <v-btn icon @click="openDialog()">
+          <v-icon color="primary">add_circle</v-icon>
+        </v-btn>
+      
       </v-layout>
 
-      <draggable v-model="projects" @change="saveOrder" delay="150">
+      <draggable v-model="projects" @change="saveOrder" handle=".handle" :disabled="!todos">
       <v-card flat v-for="(project, index) in projects" :key="project.title">
 
         <v-layout row wrap :class="`pa-2 project ${project.status}`">
-
+  
           <v-flex xs12 md6>
-            <div class="caption grey--text">Project Title</div>
-            <div :class="{'mt-0 mb-1': $vuetify.breakpoint.smAndDown}" v-if="!editMode || index != indexToEdit">{{ project.title }}</div>
+            <div class="caption grey--text ml-3" v-if="todos">Project Title</div>
+            <div class="caption grey--text" v-if="!todos">Project Title</div>
+            <div :class="{'mt-0 mb-1': $vuetify.breakpoint.smAndDown}" v-if="!editMode || index != indexToEdit">
+              <v-icon size="20" class="handle" v-if="todos">drag_indicator</v-icon>
+              {{ project.title }}
+            </div>
 
             <v-form @submit.prevent="updateTitle(index)">
             <v-text-field autofocus :color="`${project.status}s`" v-model="newTitle" v-if="editMode && indexToEdit == index" class="ma-0 pa-0"></v-text-field>
@@ -66,7 +75,6 @@
             </div>
 
           </v-flex>
-
         </v-layout>
         <v-divider></v-divider>
       </v-card>
@@ -94,12 +102,15 @@
     data() {
       return {
         projects: [],
+        projectsCopy: [],
+        todos: true,
         userId: '',
         btnColor: '',
         snackbar: false,
         editMode: false,
         newTitle: "",
-        indexToEdit: 0
+        indexToEdit: 0,
+        drag: true
       }
     },
 
@@ -111,8 +122,28 @@
 
     methods: {
 
-      sortBy(prop){
-        this.projects.sort((a,b) => a[prop] < b[prop] ? -1 : 1)
+      openDialog() {
+        EventBus.$emit('dialog', true)
+      },
+    
+      filterProjects(status){
+        this.projects = this.projectsCopy
+
+        if (status === "complete") {
+          this.projects = this.projects.filter(function(item) {
+            return item.status === "complete";
+          });
+
+        } else if (status === "ongoing") {
+          this.projects = this.projects.filter(function(item) {
+            return item.status === "ongoing";
+          });
+
+        } else if (status === "overdue") {
+          this.projects = this.projects.filter(function(item) {
+            return item.status === "overdue";
+          });
+        }  
       },
 
       changeStatus(index) {
@@ -169,6 +200,7 @@
         // DELETE ON LOCAL DATA
         if (index > -1) {
           this.projects.splice(index, 1);
+          this.projectsCopy.splice(index, 1);
         }
 
         // UPDATE ORDER ON DATABASE
@@ -192,23 +224,21 @@
       },
 
       updateTitle(index) {
-      const currentProject = this.projects[index]
-      var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
+        const currentProject = this.projects[index]
+        var docRef = db.collection("users/"+this.userId+"/projects").doc(currentProject.id);
 
-      docRef.set({
-            title: this.newTitle,
+        docRef.set({
+              title: this.newTitle,
 
-        }, { merge: true });
+          }, { merge: true });
 
-        // UPDATE LOCAL DATA
-        currentProject.title = this.newTitle
+          // UPDATE LOCAL DATA
+          currentProject.title = this.newTitle
 
-      this.editMode = false;
+        this.editMode = false;
+      },
+
     },
-
-    },
-
-    
 
     created() {
       const user = firebase.auth().currentUser;
@@ -219,7 +249,6 @@
         // not logged
       }
 
-      // COLLECTION REF
       var projectsRef = db.collection('users/'+userId+'/projects')
 
       // ORDER DATA BY PRIORITY
@@ -227,18 +256,21 @@
 
       // GET DATA
       projectsRef.onSnapshot(res => {
- 
-        const changes = res.docChanges();
+  
+      const changes = res.docChanges();
 
-        changes.forEach(change => {
-          if (change.type === 'added') {
-            this.projects.unshift({ // UNSHIF FOR ADD AT THE BEGINNING
-              ...change.doc.data(),
-              id: change.doc.id
+      changes.forEach(change => {
+        if (change.type === 'added') {
+          this.projects.unshift({ // UNSHIF FOR ADD AT THE BEGINNING
+            ...change.doc.data(),
+            id: change.doc.id
             })
           }
         })
       })
+
+      this.projectsCopy = this.projects
+
     }
   }
 
@@ -280,6 +312,10 @@
 
   .theme--light.v-btn.overdue {
     color: #f83e70;
+  }
+
+  .handle {
+    cursor: move;
   }
 
 </style>

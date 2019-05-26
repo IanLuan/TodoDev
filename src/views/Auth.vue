@@ -16,20 +16,7 @@
           <v-card class="elevation-10">
             <v-toolbar dark color="primary">
               <v-toolbar-title v-if="login">Sign in</v-toolbar-title>
-              <v-toolbar-title v-if="!login">Welcome</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-tooltip bottom>
-
-                  <v-btn
-                    icon
-                    large
-                    target="_blank"
-                    slot="activator"
-                  >
-                    <v-icon large>home</v-icon>
-                  </v-btn>
-                  <span>Home</span>
-                </v-tooltip>
+              <v-toolbar-title v-if="!login">Welcome</v-toolbar-title>         
               </v-toolbar>
               <v-card-text>
                 <v-form @submit.prevent="login? signin() : signup()" id="login-form">
@@ -74,18 +61,15 @@ export default {
       ],
       emailRules: [
         value => {
-        if(value.length > 0) {
           const pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
           return pattern.test(value) || 'Invalid email.';
         }
-      }
       ],
       passwordRules: [
         value => {
-          if(value.length > 0) {
+
             return value.length >= 5 || 'Too short.';
           }
-        }
       ],
       snackbar: false,
       snackbarText: '',
@@ -109,17 +93,15 @@ export default {
             })
           } 
         })
-        .catch(function(error) {
+        .catch((error) => {
           // Handle Errors here.
-          return error.message;
-
-        }).then(error => {
+          var errorMessage = error.message;
           this.loading = false;
-          if (error.length > 0) {
-            this.snackbarText = error;
+          if (errorMessage.length > 0) {
+            this.snackbarText = errorMessage;
             this.snackbar = true;
           }
-          
+
         })
       } else {
         this.snackbarText = 'Name too short'

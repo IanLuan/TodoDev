@@ -100,6 +100,12 @@ export default {
     }
   },
 
+  mounted() {
+    EventBus.$on('dialog', (value) => {
+        this.dialog = value
+      })
+  },
+
   created() {
     const user = firebase.auth().currentUser;
 

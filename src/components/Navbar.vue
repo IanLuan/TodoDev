@@ -13,7 +13,7 @@
 
       <v-toolbar-title class="text-uppercase grey--text">
         <span class="font-weight-light">Todo</span>
-        <span>Team</span>
+        <span>Dev</span>
       </v-toolbar-title>
 
       <v-spacer></v-spacer>
@@ -31,9 +31,9 @@
     <v-navigation-drawer v-model="drawer" app class="primary">
 
       <v-layout column align-center>
-        <v-flex class="mt-5">
-          <v-avatar size="100">
-            <img src="/man.png" alt="">
+        <v-flex class="mt-5 text-xs-center">
+          <v-avatar size="130">
+            <img :src="photoURL">
           </v-avatar>
           <p class="white--text subheading mt-1 text-xs-center">
             {{name}}
@@ -73,6 +73,7 @@ export default {
   data() {
     return {
       name: '',
+      photoURL: '',
       drawer: false,
       links: [
         { icon: 'dashboard', text: 'Dashboard', route: '/dashboard'},
@@ -96,6 +97,11 @@ export default {
 
     if (user) {
       this.name = user.displayName;
+      if(user.photoURL){
+        this.photoURL = user.photoURL;
+      } else {
+        this.photoURL = "https://imgur.com/dLB4u3s.png"
+      }
     } else {
       //
     }
