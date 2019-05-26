@@ -35,7 +35,14 @@
       
       </v-layout>
 
-      <draggable v-model="projects" @change="saveOrder" handle=".handle" :disabled="!todos">
+      <v-layout row justify-center v-if="this.projects.length == 0">
+        <v-layout column align-center>
+          <span :class="{'grey--text display-3': $vuetify.breakpoint.smAndUp, 'display-1 grey--text': $vuetify.breakpoint.xsOnly}">Nothing here 😔</span>
+          <v-btn flat color="primary" class="display-1" @click="openDialog">Add new Project</v-btn>
+        </v-layout>
+      </v-layout>
+
+      <draggable v-model="projects" @change="saveOrder" handle=".handle" :disabled="!todos" v-if="this.projects.length > 0">
       <v-card flat v-for="(project, index) in projects" :key="project.title">
 
         <v-layout row wrap :class="`pa-2 project ${project.status}`">
