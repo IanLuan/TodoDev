@@ -16,3 +16,9 @@ Live: https://todoteam-3263d.web.app/
 - **Todo List based on Status**
 
 ![Status](https://imgur.com/ytsO3xA.png) ![Status](https://imgur.com/0FNTS3r.png) ![Status]( https://imgur.com/ywX7cnC.png)
+
+## Made with
+<img src="https://imgur.com/XlA4aYR.jpeg" width="15%">
+<img src="https://imgur.com/WvTw6OS.jpeg" width="15%">
+<img src="https://imgur.com/680jcbd.jpeg" width="30%">
+
